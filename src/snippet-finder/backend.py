@@ -13,7 +13,11 @@ def generate_key_points(segments):
     for segment in segments:
         full_transcript += f'{{ "start": "{segment.start}", "end": "{segment.end}", "text": "{segment.text}" }}\n'
     input=f"You are a helpful assistant and will determine 3 - 5 key points from this audio transcript that could be used for social media. The data includes timestamps. Please include the timestamps of the best audio snippets in your response. Here is the transcript: {full_transcript}"
-    client = genai.Client(api_key=os.getenv('GEMINI_API_KEY'))
+    
+    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
+    if GEMINI_API_KEY is None:
+        raise Exception("Please provide GEMINI_API_KEY")
+    client = genai.Client(api_key=GEMINI_API_KEY)
 
     # TODO: Pass in API Key.
     response = client.models.generate_content(
