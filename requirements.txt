@@ -1,3 +1,4 @@
+altgraph==0.17.4
 annotated-types==0.7.0
 anyio==4.11.0
 av==15.1.0
@@ -50,6 +51,8 @@ pyasn1==0.6.1
 pyasn1_modules==0.4.2
 pydantic==2.11.9
 pydantic_core==2.33.2
+pyinstaller==6.16.0
+pyinstaller-hooks-contrib==2025.9
 python-dotenv==1.1.1
 PyYAML==6.0.3
 regex==2025.9.18
