@@ -7,7 +7,7 @@ from tkinter import ttk
 
 from faster_whisper import available_models
 
-from .backend import generate_transcript, generate_key_points
+from snippet_finder.backend import generate_transcript, generate_key_points
 
 class SnippetFinder():
     def __init__(self, root: tkinter.Tk):
