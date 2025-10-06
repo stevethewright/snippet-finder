@@ -3,9 +3,9 @@ from pathlib import Path
 import faster_whisper
 from google import genai
 
-def generate_transcript(file: Path):
-    model = faster_whisper.WhisperModel("base")
-    segments, info = model.transcribe(str(file))
+def generate_transcript(audio_file: Path, model_size: str = "base", device: str = "auto", compute_type: str = "default"):
+    model = faster_whisper.WhisperModel(model_size, device=device, compute_type=compute_type)
+    segments, info = model.transcribe(str(audio_file))
     return segments, info
 
 def generate_key_points(segments):
