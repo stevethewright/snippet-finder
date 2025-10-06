@@ -1,12 +1,23 @@
 import tkinter
-from tkinter import filedialog
+from tkinter import StringVar, filedialog
 from tkinter import scrolledtext
+from tkinter import ttk
+
+from faster_whisper import available_models
 
 class SnippetFinder():
     def __init__(self, root: tkinter.Tk):
         self.root = root
         self.root.title("Snippet Finder")
         self.root.geometry("600x600")
+
+        # Model Selection
+        self.selected_model_label = tkinter.Label(root, text="Selected model:")
+        self.selected_model_label.pack(pady=20)
+        self.available_models = available_models()
+        self.model_combo_box = ttk.Combobox(root, values=self.available_models)
+        self.model_combo_box.set("Select a model")
+        self.model_combo_box.pack(pady=20)
 
         # File selection
         self.chosen_file_label = tkinter.Label(root, text="No file selected")
