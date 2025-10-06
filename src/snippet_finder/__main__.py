@@ -1,5 +1,3 @@
-from pathlib import Path
-from sys import argv
 import tkinter
 
 from dotenv import load_dotenv
