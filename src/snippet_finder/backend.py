@@ -4,6 +4,10 @@ import faster_whisper
 from google import genai
 
 
+def is_gemini_key_set() -> bool:
+    return os.getenv("GEMINI_API_KEY") is not None
+
+
 def generate_transcript(
     audio_file: Path,
     model_size: str = "base",
@@ -18,6 +22,11 @@ def generate_transcript(
 
 
 def generate_key_points(segments):
+    # Check for API Key
+    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+    if GEMINI_API_KEY is None:
+        raise Exception("Please provide GEMINI_API_KEY")
+
     full_transcript = ""
     for segment in segments:
         full_transcript += f'{{ "start": "{segment.start}", "end": "{segment.end}", "text": "{segment.text}" }}\n'
@@ -55,11 +64,8 @@ def generate_key_points(segments):
 
     {full_transcript}
     """
-    GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-    if GEMINI_API_KEY is None:
-        raise Exception("Please provide GEMINI_API_KEY")
-    client = genai.Client(api_key=GEMINI_API_KEY)
 
+    client = genai.Client(api_key=GEMINI_API_KEY)
     response = client.models.generate_content(model="gemini-2.5-flash", contents=input)
 
     return response.text

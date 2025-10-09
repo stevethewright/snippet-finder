@@ -3,11 +3,15 @@ from pathlib import Path
 import threading
 import tkinter
 from tkinter import filedialog
-from tkinter import ttk
+from tkinter import ttk, messagebox
 
 from faster_whisper import available_models
 
-from snippet_finder.backend import generate_transcript, generate_key_points
+from snippet_finder.backend import (
+    generate_transcript,
+    generate_key_points,
+    is_gemini_key_set,
+)
 
 
 class SnippetFinder:
@@ -88,13 +92,25 @@ class SnippetFinder:
 
     def transcribe_and_analyse(self):
         self.root.config(cursor="watch")
+        if not is_gemini_key_set():
+            self.root.config(cursor="arrow")
+            messagebox.showerror(
+                "No API Key Found",
+                "Environment variable GEMINI_API_KEY has not been set.",
+            )
+            return
+
         segments, _ = generate_transcript(
             Path(self.file_path),
             self.model_combobox.get(),
             self.device_combobox.get(),
             self.compute_type_combobox.get(),
         )
-        key_points = generate_key_points(segments)
+        key_points = None
+        try:
+            key_points = generate_key_points(segments)
+        except Exception as e:
+            messagebox.showerror("Transcription/Analysis Failed", f"{e}")
         if key_points:
             with open("output.txt", "w") as file:
                 file.write(key_points)
