@@ -17,6 +17,7 @@ from snippet_finder.backend import (
 class SnippetFinder:
     def __init__(self, root: tkinter.Tk):
         self.root = root
+        self.file_path = None
         self.root.title("Snippet Finder")
         self.root.geometry("600x600")
 
@@ -97,6 +98,14 @@ class SnippetFinder:
             messagebox.showerror(
                 "No API Key Found",
                 "Environment variable GEMINI_API_KEY has not been set.",
+            )
+            return
+
+        if self.file_path is None:
+            self.root.config(cursor="arrow")
+            messagebox.showerror(
+                "No File Provided",
+                "Please select an audio file for transcripting.",
             )
             return
 

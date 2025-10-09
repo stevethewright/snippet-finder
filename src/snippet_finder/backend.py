@@ -14,6 +14,8 @@ def generate_transcript(
     device: str = "auto",
     compute_type: str = "default",
 ):
+    if not audio_file.is_file():
+        raise Exception("Provided path is not a file.")
     model = faster_whisper.WhisperModel(
         model_size, device=device, compute_type=compute_type
     )
