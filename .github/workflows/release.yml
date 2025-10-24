@@ -10,7 +10,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest]
+        os: [ubuntu-latest, windows-latest]
         python-version:
           - "3.12"
     runs-on: ${{ matrix.os }}
@@ -19,6 +19,7 @@ jobs:
     - name: Clean previous builds
       run: |
         rm -rf dist/ build/ __pycache__
+        # sep py v 4 mac?
 
     - name: Checkout code
       uses: actions/checkout@v3
