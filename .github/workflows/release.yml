@@ -17,7 +17,7 @@ jobs:
 
     # Clean previous builds - Run for Ubuntu and MacOS
     steps:
-    - name: Clean previous builds
+    - name: Clean previous builds (Linux/Mac)
       if: ${{ runner.os != 'Windows' }}
       run: |
         rm -rf dist/ build/ __pycache__
@@ -26,9 +26,9 @@ jobs:
     - name: Clean previous builds (Windows)
       if: ${{ runner.os == 'Windows' }}
       run: |
-        rmdir /s /q dist
-        rmdir /s /q build
-        del /f /q __pycache__\*
+        Remove-Item -Recurse -Force dist
+        Remove-Item -Recurse -Force build
+        Remove-Item -Recurse -Force __pycache__
 
     - name: Checkout code
       uses: actions/checkout@v3
