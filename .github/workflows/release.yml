@@ -26,9 +26,9 @@ jobs:
     - name: Clean previous builds (Windows)
       if: ${{ runner.os == 'Windows' }}
       run: |
-        Remove-Item -Recurse -Force dist
-        Remove-Item -Recurse -Force build
-        Remove-Item -Recurse -Force __pycache__
+        Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force __pycache__ -ErrorAction SilentlyContinue
 
     - name: Checkout code
       uses: actions/checkout@v3
