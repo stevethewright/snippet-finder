@@ -35,7 +35,7 @@ jobs:
 
     - name: Build with PyInstaller
       run: |
-        PYTHONPATH=src pyinstaller --onefile -n snippet_finder src/snippet_finder/__main__.py
+        PYTHONPATH=src pyinstaller --onefile -n snippet_finder --distpath dist/ src/snippet_finder/__main__.py
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
