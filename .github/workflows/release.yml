@@ -44,14 +44,21 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install --no-cache-dir faster-whisper google-auth google-genai torch
+        pip freeze
 
     - name: Install PyInstaller
       run: |
         pip install pyinstaller
 
-    - name: Build with PyInstaller
+    - name: Build with PyInstaller (Linux/MacOS)
+      if: ${{ runner.os != 'Windows' }}
       run: |
         PYTHONPATH=src pyinstaller --onefile -n snippet_finder --distpath dist/ src/snippet_finder/__main__.py
+
+    - name: Build with PyInstaller (Linux/MacOS)
+      if: ${{ runner.os == 'Windows' }}
+      run: |
+        $env:PYTHONPATH=src; pyinstaller --onefile -n snippet_finder --distpath dist/ src/snippet_finder/__main__.py
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
