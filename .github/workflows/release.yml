@@ -26,7 +26,7 @@ jobs:
       run: |
         rm -rf dist/ build/ __pycache__
 
-    # Clean previous builds - Run only on Windows OS
+    # Clean previous builds - Run only on Windows
     - name: Clean previous builds (Windows)
       if: ${{ runner.os == 'Windows' }}
       run: |
@@ -41,11 +41,6 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
-
-    - name: Install Tcl/Tk (MacOS)
-      if: runner.os == 'macOS'
-      run: |
-        brew install tcl-tk
 
     - name: Install dependencies
       run: |

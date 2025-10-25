@@ -53,6 +53,9 @@ pydantic==2.11.9
 pydantic_core==2.33.2
 pyinstaller==6.16.0
 pyinstaller-hooks-contrib==2025.9
+PyQt6==6.10.0
+PyQt6-Qt6==6.10.0
+PyQt6_sip==13.10.2
 python-dotenv==1.1.1
 PyYAML==6.0.3
 regex==2025.9.18
