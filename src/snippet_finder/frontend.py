@@ -29,7 +29,7 @@ class SnippetFinder(QWidget):
 
         self.file_path = None
         self.setWindowTitle("Snippet Finder")
-        self.setGeometry(100, 100, 600, 600)
+        self.setGeometry(100, 100, 600, 150)
 
         self.available_models = available_models()
         self.devices = ["auto", "cpu", "cuda"]
