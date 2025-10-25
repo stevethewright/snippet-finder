@@ -58,7 +58,7 @@ jobs:
     - name: Build with PyInstaller (Linux/MacOS)
       if: ${{ runner.os == 'Windows' }}
       run: |
-        $env:PYTHONPATH=src; pyinstaller --onefile -n snippet_finder --distpath dist/ src/snippet_finder/__main__.py
+        $env:PYTHONPATH="src"; pyinstaller --onefile -n snippet_finder --distpath dist/ src/snippet_finder/__main__.py
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
