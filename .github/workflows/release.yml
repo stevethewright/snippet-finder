@@ -45,7 +45,7 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install --no-cache-dir faster-whisper google-auth google-genai torch python-dotenv
+        pip install --no-cache-dir faster-whisper google-auth google-genai torch python-dotenv PyQt6
         pip freeze
 
     - name: Install PyInstaller
