@@ -2,8 +2,8 @@ name: Build & Release
 
 on:
   push:
-    branch:
-      - '**'
+    tags:
+      - 'v*'
   workflow_dispatch:
 
 jobs:
@@ -86,7 +86,7 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         tag_name: ${{ github.ref }}
-        name: Release ${{ github.ref }}
+        name: snippet-finder-${{ github.ref }}
         draft: false
         prerelease: false
     - name: Upload release assets
