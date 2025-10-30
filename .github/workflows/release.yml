@@ -19,14 +19,12 @@ jobs:
             python-version: "3.10"
     runs-on: ${{ matrix.os }}
 
-    # Clean previous builds - Run for Ubuntu and MacOS
     steps:
     - name: Clean previous builds (Linux/Mac)
       if: ${{ runner.os != 'Windows' }}
       run: |
         rm -rf dist/ build/ __pycache__
 
-    # Clean previous builds - Run only on Windows
     - name: Clean previous builds (Windows)
       if: ${{ runner.os == 'Windows' }}
       run: |
@@ -42,11 +40,17 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
 
-    - name: Install dependencies
+    - name: Install dependencies (Windows/Mac)
+      if: ${{ runner.os != 'Linux' }}
       run: |
         python -m pip install --upgrade pip
-        pip install --no-cache-dir faster-whisper google-auth google-genai torch python-dotenv PyQt6
-        pip freeze
+        pip install --no-cache-dir -r requirements.txt
+
+    - name: Install dependencies (Linux)
+      if: ${{ runner.os == 'Linux' }}
+      run: |
+        python -m pip install --upgrade pip
+        pip install --no-cache-dir -r requirements-linux.txt
 
     - name: Install PyInstaller
       run: |
@@ -55,12 +59,12 @@ jobs:
     - name: Build with PyInstaller (Linux/MacOS)
       if: ${{ runner.os != 'Windows' }}
       run: |
-        PYTHONPATH=src pyinstaller --onefile -n snippet_finder --distpath dist/ src/snippet_finder/__main__.py
+        PYTHONPATH=src pyinstaller -n snippet_finder --onefile --windowed --distpath dist/ src/snippet_finder/__main__.py
 
     - name: Build with PyInstaller (Windows)
       if: ${{ runner.os == 'Windows' }}
       run: |
-        $env:PYTHONPATH="src"; pyinstaller --onefile -n snippet_finder --distpath dist/ src/snippet_finder/__main__.py
+        $env:PYTHONPATH="src"; pyinstaller -n snippet_finder --onefile --windowed --distpath dist/ src/snippet_finder/__main__.py
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
@@ -89,4 +93,4 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         assets: |
-          dist/*   # or path(s) to OS-specific executables
+          dist/*
