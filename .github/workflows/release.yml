@@ -69,16 +69,23 @@ jobs:
       run: |
         $env:PYTHONPATH="src"; pyinstaller -n snippet_finder --onefile --windowed --distpath dist/ src/snippet_finder/__main__.py
 
-    - name: Compress build output
+    - name: Compress build output (Linux/macOS)
+      if: ${{ runner.os != 'Windows' }}
       run: |
-        cd dist
-        zip -r ../${{ runner.os }}_snippet_finder.zip
+        ls -la dist
+        zip -r snippet_finder_${{ matrix.shortname }}.zip dist/*
+
+    - name: Compress build output (Windows)
+      if: ${{ runner.os == 'Windows' }}
+      run: |
+        Get-ChildItem dist
+        Compress-Archive -Path dist\* -DestinationPath snippet_finder_${{ matrix.shortname }}.zip
 
     - name: Upload build artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ runner.os }}_snippet_finder
-        path: ${{ runner.os }}_snippet_finder.zip
+        name: snippet_finder_${{ matrix.shortname }}
+        path: snippet_finder_${{ matrix.shortname }}.zip
   
   release:
     needs: build
