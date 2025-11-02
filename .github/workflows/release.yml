@@ -6,6 +6,9 @@ on:
       - 'v*'
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     strategy:
@@ -80,17 +83,17 @@ jobs:
     - name: Download artifacts
       uses: actions/download-artifact@v4
       with:
-        name: build-ubuntu-latest
+        path: dist
+
     - name: Create GitHub Release
       id: create_release
       uses: softprops/action-gh-release@v1
       with:
-        tag_name: ${{ github.ref }}
-        name: snippet-finder-${{ github.ref }}
+        tag_name: ${{ github.ref_name }}
+        name: snippet-finder-${{ github.ref_name }}
         draft: false
         prerelease: false
-    - name: Upload release assets
-      uses: softprops/action-gh-release@v1
-      with:
-        assets: |
-          dist/*
+        generate_release_notes: true
+        files: dist/**
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
