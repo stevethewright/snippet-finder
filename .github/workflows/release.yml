@@ -16,10 +16,13 @@ jobs:
         include:
           - os: ubuntu-latest
             python-version: "3.12"
+            shortname: linux
           - os: windows-latest
             python-version: "3.10"
+            shortname: windows
           - os: macos-latest
             python-version: "3.10"
+            shortname: macos
     runs-on: ${{ matrix.os }}
 
     steps:
