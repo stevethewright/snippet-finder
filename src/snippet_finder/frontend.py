@@ -165,14 +165,21 @@ class SnippetFinder(QWidget):
             key_points = generate_key_points(segments)
             logger.info("Key point analysis complete.")
             if key_points:
-                self.output_text_edit.setPlainText(key_points)
+                result = self.parse_output(key_points)
+                self.output_text_edit.setPlainText(result)
                 if self.target_file_path:
                     logger.info(f"Saving to {self.target_file_path}")
                     with open(self.target_file_path, "w") as file:
-                        file.write(key_points)
+                        file.write(result)
         except Exception as e:
             logger.error(f"Transcription/Analysis Failed. Error: {e}")
             QMessageBox.critical(self, "Transcription/Analysis Failed", str(e))
         finally:
             self.setCursor(Qt.CursorShape.ArrowCursor)
         logger.debug("transcribe_and_analyse complete.")
+    
+    def parse_output(self, text: str) -> str:
+        split_text = text.split('\n')
+        if split_text[0] == "```json":
+            text = '\n'.join(split_text[1:-1])
+        return text
