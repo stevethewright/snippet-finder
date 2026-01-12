@@ -43,36 +43,37 @@ def generate_key_points(segments):
     for segment in segments:
         full_transcript += f'{{ "start": "{segment.start}", "end": "{segment.end}", "text": "{segment.text}" }}\n'
     input = f"""
-    Your task is to read a provided transcript in the form of a JSON object, where each segment contains a start timestamp, end timestamp, and text content. Here's the structure of each object:
+    You are a JSON generator.
+
+    Your task is to read a provided transcript in the form of a JSON array. Each segment has the following structure:
     {{
         "start": 0.0,
         "end": 5.0,
         "text": "Hello there, my name is John Smith."
     }}
 
-    You will process this JSON transcript and return 3-5 key points. Each point should:
+    From this transcript, select 3-5 key points.
 
-        1. Not change the original data - Keep the timestamps and the text intact.
-        2. Be concise and suitable for social media - Focus on the most impactful, engaging takeaways that would resonate with a broad audience.
-        3. Include the timestamp(s) - Each point should be tied to its respective timestamp range.
-        4. Be clear and direct - Aim for punchy, attention-grabbing summaries with 1-2 sentences per point.
-    
-    Example of output format:
+    Rules (STRICT):
+    - Output MUST be valid JSON.
+    - Output MUST be a single JSON array.
+    - Output MUST contain ONLY JSON - no explanations, no comments, no markdown, no extra text.
+    - Do NOT modify the original timestamps or text.
+    - Each item must be copied verbatim from the input transcript.
+    - Each item must represent an impactful, social-media-friendly takeaway.
+    - Each item should be concise (1-2 sentences max).
+    - If you cannot comply, return an empty JSON array: [].
+
+    Required output format:
     [
         {{
-            "start": 0.0,
-            "end": 5.0,
-            "text": "Hello there, my name is John Smith."
-        }},
-        {{
-            "start": 10.0,
-            "end": 15.0,
-            "text": "I believe in the power of education to change lives."
+            "start": number,
+            "end": number,
+            "text": string
         }}
     ]
 
-    The goal is to make these points short, impactful, and easily shareable on platforms like Facebook and Instagram. Here is the transcript for processing:
-
+    Here is the transcript to process:
     {full_transcript}
     """
 

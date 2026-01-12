@@ -11,6 +11,7 @@ from PyQt6.QtWidgets import (
     QGridLayout,
     QVBoxLayout,
     QHBoxLayout,
+    QPlainTextEdit,
 )
 from PyQt6.QtCore import Qt
 
@@ -75,11 +76,31 @@ class SnippetFinder(QWidget):
         file_layout.addWidget(self.file_select_button)
         main_layout.addLayout(file_layout)
 
+        # Output Options
+        self.model_section_label = QLabel("Output Options")
+        main_layout.addWidget(self.model_section_label)
+        target_file_layout = QHBoxLayout()
+        self.chosen_target_file_label = QLabel("Selected target file:")
+        target_file_layout.addWidget(self.chosen_target_file_label)
+        self.selected_target_file_label = QLabel("No target file selected.")
+        target_file_layout.addWidget(self.selected_target_file_label)
+        self.target_file_select_button = QPushButton("Select File")
+        self.target_file_select_button.clicked.connect(self.get_save_path)
+        target_file_layout.addWidget(self.target_file_select_button)
+        main_layout.addLayout(target_file_layout)
+
         # Fetch Snippets
         self.fetch_snippets_button = QPushButton("Fetch Snippets")
         self.fetch_snippets_button.clicked.connect(self.transcribe_and_analyse)
         main_layout.addWidget(self.fetch_snippets_button)
 
+        # Output Display
+        self.model_section_label = QLabel("Output")
+        main_layout.addWidget(self.model_section_label)
+        self.output_text_edit = QPlainTextEdit()
+        self.output_text_edit.setReadOnly(True)
+        self.output_text_edit.setPlainText("Fetch snippet to get a result.")
+        main_layout.addWidget(self.output_text_edit)
         self.setLayout(main_layout)
 
     def select_file(self):
@@ -93,6 +114,17 @@ class SnippetFinder(QWidget):
             self.file_path = file_path
             self.selected_file_label.setText(os.path.basename(file_path))
         logger.debug("select_file complete.")
+
+    def get_save_path(self):
+        logger.debug("get_save_path called.")
+        file_dialog = QFileDialog()
+        file_path, _ = file_dialog.getSaveFileName(
+            self, "Target output file", "", "Text Files (*.txt);;All Files (*)"
+        )
+        if file_path:
+            self.target_file_path = file_path
+            self.selected_target_file_label.setText(os.path.basename(file_path))
+        logger.debug("get_save_path complete.")
 
     def transcribe_and_analyse(self):
         logger.debug("transcribe_and_analyse called.")
@@ -131,10 +163,13 @@ class SnippetFinder(QWidget):
             )
             logger.info("Transcription complete. Analysing key points...")
             key_points = generate_key_points(segments)
+            logger.info("Key point analysis complete.")
             if key_points:
-                logger.info("Key point analysis complete. Saving to output.txt")
-                with open("output.txt", "w") as file:
-                    file.write(key_points)
+                self.output_text_edit.setPlainText(key_points)
+                if self.target_file_path:
+                    logger.info(f"Saving to {self.target_file_path}")
+                    with open(self.target_file_path, "w") as file:
+                        file.write(key_points)
         except Exception as e:
             logger.error(f"Transcription/Analysis Failed. Error: {e}")
             QMessageBox.critical(self, "Transcription/Analysis Failed", str(e))
