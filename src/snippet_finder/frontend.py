@@ -1,3 +1,4 @@
+import json
 import logging
 import os
 from pathlib import Path
@@ -177,9 +178,9 @@ class SnippetFinder(QWidget):
         finally:
             self.setCursor(Qt.CursorShape.ArrowCursor)
         logger.debug("transcribe_and_analyse complete.")
-    
+
     def parse_output(self, text: str) -> str:
-        split_text = text.split('\n')
+        split_text = text.split("\n")
         if split_text[0] == "```json":
-            text = '\n'.join(split_text[1:-1])
+            text = "\n".join(split_text[1:-1])
         return text
