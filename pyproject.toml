@@ -1,0 +1,12 @@
+[project]
+name = "snippet-finder"
+version = "0.1.0"
+description = "GUI wrapper for Whisper by OpenAI for finding key points in audio transcripts."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "dotenv>=0.9.9",
+    "faster-whisper>=1.2.1",
+    "google-genai>=1.59.0",
+    "pyqt6>=6.10.2",
+]

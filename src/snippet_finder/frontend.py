@@ -36,7 +36,7 @@ class SnippetFinder(QWidget):
         self.setGeometry(100, 100, 600, 150)
 
         self.available_models = available_models()
-        self.devices = ["auto", "cpu", "cuda"]
+        self.devices = ["auto", "cpu"]  # TODO: Cuda is not supported.
         self.compute_types = ["default", "int8", "float16", "float32"]
 
         main_layout = QVBoxLayout()
