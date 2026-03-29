@@ -104,6 +104,15 @@ class SnippetFinder(QWidget):
         main_layout.addWidget(self.output_text_edit)
         self.setLayout(main_layout)
 
+        # Transcript Display
+        self.model_section_label = QLabel("Transcript")
+        main_layout.addWidget(self.model_section_label)
+        self.transcript_text_edit = QPlainTextEdit()
+        self.transcript_text_edit.setReadOnly(True)
+        self.transcript_text_edit.setPlainText("Fetch snippet to get a transcript.")
+        main_layout.addWidget(self.transcript_text_edit)
+        self.setLayout(main_layout)
+
     def select_file(self):
         logger.debug("select_file called.")
         file_dialog = QFileDialog(self)
@@ -163,6 +172,8 @@ class SnippetFinder(QWidget):
                 self.compute_type_combobox.currentText(),
             )
             logger.info("Transcription complete. Analysing key points...")
+            transcript = "".join(segment.text for segment in segments)
+            self.transcript_text_edit.setPlainText(transcript.strip())
             key_points = generate_key_points(segments)
             logger.info("Key point analysis complete.")
             if key_points:
