@@ -2,6 +2,7 @@ import logging
 import os
 from pathlib import Path
 from PyQt6.QtWidgets import (
+    QTabWidget,
     QWidget,
     QLabel,
     QPushButton,
@@ -34,15 +35,21 @@ class SnippetFinder(QWidget):
         self.setWindowTitle("Snippet Finder")
         self.setGeometry(100, 100, 600, 150)
 
+        # Tabs
+        tabs = QTabWidget()
+        basic_tab = QWidget()
+        advanced_tab = QWidget()
+
         self.available_models = available_models()
-        self.devices = ["auto", "cpu"]  # TODO: Cuda is not supported.
+        self.devices = ["cpu"]  # TODO: Cuda is not supported.
         self.compute_types = ["default", "int8", "float16", "float32"]
 
-        main_layout = QVBoxLayout()
+        basic_layout = QVBoxLayout()
+        advanced_layout = QVBoxLayout()
 
         # Whisper Options
         self.model_section_label = QLabel("Whisper Options")
-        main_layout.addWidget(self.model_section_label)
+        advanced_layout.addWidget(self.model_section_label)
 
         whisper_layout = QGridLayout()
         whisper_layout.addWidget(QLabel("Selected model:"), 0, 0)
@@ -63,7 +70,7 @@ class SnippetFinder(QWidget):
         self.compute_type_combobox.setCurrentText("default")
         whisper_layout.addWidget(self.compute_type_combobox, 2, 1)
 
-        main_layout.addLayout(whisper_layout)
+        advanced_layout.addLayout(whisper_layout)
 
         # File selection
         file_layout = QHBoxLayout()
@@ -74,11 +81,11 @@ class SnippetFinder(QWidget):
         self.file_select_button = QPushButton("Select File")
         self.file_select_button.clicked.connect(self.select_file)
         file_layout.addWidget(self.file_select_button)
-        main_layout.addLayout(file_layout)
+        advanced_layout.addLayout(file_layout)
 
         # Output Options
         self.model_section_label = QLabel("Output Options")
-        main_layout.addWidget(self.model_section_label)
+        advanced_layout.addWidget(self.model_section_label)
         target_file_layout = QHBoxLayout()
         self.chosen_target_file_label = QLabel("Selected target file:")
         target_file_layout.addWidget(self.chosen_target_file_label)
@@ -87,29 +94,36 @@ class SnippetFinder(QWidget):
         self.target_file_select_button = QPushButton("Select File")
         self.target_file_select_button.clicked.connect(self.get_save_path)
         target_file_layout.addWidget(self.target_file_select_button)
-        main_layout.addLayout(target_file_layout)
+        advanced_layout.addLayout(target_file_layout)
 
         # Fetch Snippets
         self.fetch_snippets_button = QPushButton("Fetch Snippets")
         self.fetch_snippets_button.clicked.connect(self.transcribe_and_analyse)
-        main_layout.addWidget(self.fetch_snippets_button)
+        advanced_layout.addWidget(self.fetch_snippets_button)
 
         # Output Display
         self.model_section_label = QLabel("Output")
-        main_layout.addWidget(self.model_section_label)
+        advanced_layout.addWidget(self.model_section_label)
         self.output_text_edit = QPlainTextEdit()
         self.output_text_edit.setReadOnly(True)
         self.output_text_edit.setPlainText("Fetch snippet to get a result.")
-        main_layout.addWidget(self.output_text_edit)
-        self.setLayout(main_layout)
+        advanced_layout.addWidget(self.output_text_edit)
 
         # Transcript Display
         self.model_section_label = QLabel("Transcript")
-        main_layout.addWidget(self.model_section_label)
+        advanced_layout.addWidget(self.model_section_label)
         self.transcript_text_edit = QPlainTextEdit()
         self.transcript_text_edit.setReadOnly(True)
         self.transcript_text_edit.setPlainText("Fetch snippet to get a transcript.")
-        main_layout.addWidget(self.transcript_text_edit)
+        advanced_layout.addWidget(self.transcript_text_edit)
+
+        # Add tabs
+        basic_tab.setLayout(basic_layout)
+        advanced_tab.setLayout(advanced_layout)
+        tabs.addTab(basic_tab, "Basic")
+        tabs.addTab(advanced_tab, "Advanced")
+        main_layout = QVBoxLayout()
+        main_layout.addWidget(tabs)
         self.setLayout(main_layout)
 
     def select_file(self):
