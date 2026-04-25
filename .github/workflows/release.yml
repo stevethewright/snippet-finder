@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - 'v*'
+
   workflow_dispatch:
 
 permissions:
@@ -14,101 +15,81 @@ jobs:
     strategy:
       matrix:
         include:
-          - os: ubuntu-latest
-            python-version: "3.12"
-            shortname: linux
           - os: windows-latest
-            python-version: "3.10"
-            shortname: windows
+            artifact: snippet-finder-win
+            path: dist/snippet-finder.exe
+            pyinstaller_args: --onefile --windowed src/snippet_finder/__main__.py --name snippet-finder
+
           - os: macos-latest
-            python-version: "3.10"
-            shortname: macos
+            artifact: snippet-finder-mac
+            path: dist/snippet-finder.app
+            pyinstaller_args: --onedir --windowed src/snippet_finder/__main__.py --name snippet-finder
+
+          - os: ubuntu-latest
+            artifact: snippet-finder-linux
+            path: dist/snippet-finder
+            pyinstaller_args: --onefile --windowed src/snippet_finder/__main__.py --name snippet-finder
+
     runs-on: ${{ matrix.os }}
 
     steps:
-    - name: Clean previous builds (Linux/Mac)
-      if: ${{ runner.os != 'Windows' }}
-      run: |
-        rm -rf dist/ build/ __pycache__
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Clean previous builds (Windows)
-      if: ${{ runner.os == 'Windows' }}
-      run: |
-        Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
-        Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue
-        Remove-Item -Recurse -Force __pycache__ -ErrorAction SilentlyContinue
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
 
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Set up Python
+        run: uv python install 3.12
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: uv sync
 
-    - name: Install dependencies (Windows/Mac)
-      if: ${{ runner.os != 'Linux' }}
-      run: |
-        python -m pip install --upgrade pip
-        pip install --no-cache-dir -r requirements.txt
+      # Linux only — install Qt/display dependencies
+      - name: Install Linux deps
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libxcb-cursor0 \
+            libxcb-xinerama0 \
+            libxcb-icccm4 \
+            libxcb-image0 \
+            libxcb-keysyms1 \
+            libxcb-randr0 \
+            libxcb-render-util0 \
+            libxcb-shape0 \
+            libegl1 \
+            libgl1
 
-    - name: Install dependencies (Linux)
-      if: ${{ runner.os == 'Linux' }}
-      run: |
-        python -m pip install --upgrade pip
-        pip install --no-cache-dir -r requirements-linux.txt
+      - name: Build with PyInstaller
+        run: uv run pyinstaller ${{ matrix.pyinstaller_args }}
 
-    - name: Install PyInstaller
-      run: |
-        pip install pyinstaller
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          path: ${{ matrix.path }}
 
-    - name: Build with PyInstaller (Linux/MacOS)
-      if: ${{ runner.os != 'Windows' }}
-      run: |
-        PYTHONPATH=src pyinstaller -n snippet_finder --onefile --windowed --distpath dist/ src/snippet_finder/__main__.py
-
-    - name: Build with PyInstaller (Windows)
-      if: ${{ runner.os == 'Windows' }}
-      run: |
-        $env:PYTHONPATH="src"; pyinstaller -n snippet_finder --onefile --windowed --distpath dist/ src/snippet_finder/__main__.py
-
-    - name: Compress build output (Linux/macOS)
-      if: ${{ runner.os != 'Windows' }}
-      run: |
-        ls -la dist
-        zip -r snippet_finder_${{ matrix.shortname }}.zip dist/*
-
-    - name: Compress build output (Windows)
-      if: ${{ runner.os == 'Windows' }}
-      run: |
-        Get-ChildItem dist
-        Compress-Archive -Path dist\* -DestinationPath snippet_finder_${{ matrix.shortname }}.zip
-
-    - name: Upload build artifact
-      uses: actions/upload-artifact@v4
-      with:
-        name: snippet_finder_${{ matrix.shortname }}
-        path: snippet_finder_${{ matrix.shortname }}.zip
-  
   release:
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
+    if: startsWith(github.ref, 'refs/tags/')
     steps:
-    - name: Download artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: dist
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
 
-    - name: Create GitHub Release
-      id: create_release
-      uses: softprops/action-gh-release@v1
-      with:
-        tag_name: ${{ github.ref_name }}
-        name: snippet-finder-${{ github.ref_name }}
-        draft: false
-        prerelease: false
-        generate_release_notes: true
-        files: dist/**/*.zip
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          name: snippet-finder-${{ github.ref_name }}
+          draft: false
+          prerelease: false
+          generate_release_notes: true
+          files: |
+            snippet-finder-win/snippet-finder.exe
+            snippet-finder-mac/snippet-finder.app
+            snippet-finder-linux/snippet-finder
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
