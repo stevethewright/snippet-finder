@@ -73,15 +73,8 @@ class SnippetFinder(QWidget):
         advanced_layout.addLayout(whisper_layout)
 
         # File selection
-        file_layout = QHBoxLayout()
-        self.chosen_file_label = QLabel("Selected audio file:")
-        file_layout.addWidget(self.chosen_file_label)
-        self.selected_file_label = QLabel("No file selected.")
-        file_layout.addWidget(self.selected_file_label)
-        self.file_select_button = QPushButton("Select File")
-        self.file_select_button.clicked.connect(self.select_file)
-        file_layout.addWidget(self.file_select_button)
-        advanced_layout.addLayout(file_layout)
+        basic_layout.addLayout(self._create_file_select())
+        advanced_layout.addLayout(self._create_file_select())
 
         # Output Options
         self.model_section_label = QLabel("Output Options")
@@ -125,6 +118,17 @@ class SnippetFinder(QWidget):
         main_layout = QVBoxLayout()
         main_layout.addWidget(tabs)
         self.setLayout(main_layout)
+
+    def _create_file_select(self) -> QHBoxLayout:
+        file_layout = QHBoxLayout()
+        chosen_file_label = QLabel("Selected audio file:")
+        file_layout.addWidget(chosen_file_label)
+        selected_file_label = QLabel("No file selected.")
+        file_layout.addWidget(selected_file_label)
+        file_select_button = QPushButton("Select File")
+        file_select_button.clicked.connect(self.select_file)
+        file_layout.addWidget(file_select_button)
+        return file_layout
 
     def select_file(self):
         logger.debug("select_file called.")
