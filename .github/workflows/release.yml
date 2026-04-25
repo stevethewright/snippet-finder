@@ -83,9 +83,6 @@ jobs:
       - name: Download all artifacts
         uses: actions/download-artifact@v4
 
-      - name: Debug - list everything
-        run: find . -type f | sort
-
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -96,7 +93,7 @@ jobs:
           generate_release_notes: true
           files: |
             snippet-finder-win/snippet-finder.exe
-            snippet-finder-macos/snippet-finder.zip
+            snippet-finder-macos/snippet-finder-macos.zip
             snippet-finder-linux/snippet-finder
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
