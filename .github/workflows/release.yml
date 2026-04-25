@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - 'v*'
-    branches:
-      - 22-fix-release-release-v010
 
   workflow_dispatch:
 
