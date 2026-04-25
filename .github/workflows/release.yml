@@ -93,7 +93,7 @@ jobs:
           generate_release_notes: true
           files: |
             snippet-finder-win/snippet-finder.exe
-            snippet-finder-mac/snippet-finder-mac.zip
+            snippet-finder-mac.zip
             snippet-finder-linux/snippet-finder
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
