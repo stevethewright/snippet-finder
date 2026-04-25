@@ -62,7 +62,7 @@ jobs:
             libgl1
 
       - name: Build with PyInstaller
-        run: uv run pyinstaller --onefile --windowed src/snippet_finder/__main__.py --name snippet_finder
+        run: uv run pyinstaller --onefile --windowed --distpath dist src/snippet_finder/__main__.py --name snippet_finder
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
