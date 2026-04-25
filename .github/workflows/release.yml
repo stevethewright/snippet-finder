@@ -1,0 +1,114 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            python-version: "3.12"
+            shortname: linux
+          - os: windows-latest
+            python-version: "3.10"
+            shortname: windows
+          - os: macos-latest
+            python-version: "3.10"
+            shortname: macos
+    runs-on: ${{ matrix.os }}
+
+    steps:
+    - name: Clean previous builds (Linux/Mac)
+      if: ${{ runner.os != 'Windows' }}
+      run: |
+        rm -rf dist/ build/ __pycache__
+
+    - name: Clean previous builds (Windows)
+      if: ${{ runner.os == 'Windows' }}
+      run: |
+        Remove-Item -Recurse -Force dist -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force build -ErrorAction SilentlyContinue
+        Remove-Item -Recurse -Force __pycache__ -ErrorAction SilentlyContinue
+
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install dependencies (Windows/Mac)
+      if: ${{ runner.os != 'Linux' }}
+      run: |
+        python -m pip install --upgrade pip
+        pip install --no-cache-dir -r requirements.txt
+
+    - name: Install dependencies (Linux)
+      if: ${{ runner.os == 'Linux' }}
+      run: |
+        python -m pip install --upgrade pip
+        pip install --no-cache-dir -r requirements-linux.txt
+
+    - name: Install PyInstaller
+      run: |
+        pip install pyinstaller
+
+    - name: Build with PyInstaller (Linux/MacOS)
+      if: ${{ runner.os != 'Windows' }}
+      run: |
+        PYTHONPATH=src pyinstaller -n snippet_finder --onefile --windowed --distpath dist/ src/snippet_finder/__main__.py
+
+    - name: Build with PyInstaller (Windows)
+      if: ${{ runner.os == 'Windows' }}
+      run: |
+        $env:PYTHONPATH="src"; pyinstaller -n snippet_finder --onefile --windowed --distpath dist/ src/snippet_finder/__main__.py
+
+    - name: Compress build output (Linux/macOS)
+      if: ${{ runner.os != 'Windows' }}
+      run: |
+        ls -la dist
+        zip -r snippet_finder_${{ matrix.shortname }}.zip dist/*
+
+    - name: Compress build output (Windows)
+      if: ${{ runner.os == 'Windows' }}
+      run: |
+        Get-ChildItem dist
+        Compress-Archive -Path dist\* -DestinationPath snippet_finder_${{ matrix.shortname }}.zip
+
+    - name: Upload build artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: snippet_finder_${{ matrix.shortname }}
+        path: snippet_finder_${{ matrix.shortname }}.zip
+  
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/v')
+    steps:
+    - name: Download artifacts
+      uses: actions/download-artifact@v4
+      with:
+        path: dist
+
+    - name: Create GitHub Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.ref_name }}
+        name: snippet-finder-${{ github.ref_name }}
+        draft: false
+        prerelease: false
+        generate_release_notes: true
+        files: dist/**/*.zip
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
