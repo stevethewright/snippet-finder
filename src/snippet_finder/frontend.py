@@ -48,67 +48,35 @@ class SnippetFinder(QWidget):
         advanced_layout = QVBoxLayout()
 
         # Whisper Options
-        self.model_section_label = QLabel("Whisper Options")
-        advanced_layout.addWidget(self.model_section_label)
-
-        whisper_layout = QGridLayout()
-        whisper_layout.addWidget(QLabel("Selected model:"), 0, 0)
-        self.model_combobox = QComboBox()
-        self.model_combobox.addItems(self.available_models)
-        self.model_combobox.setCurrentText("base")
-        whisper_layout.addWidget(self.model_combobox, 0, 1)
-
-        whisper_layout.addWidget(QLabel("Selected device:"), 1, 0)
-        self.device_combobox = QComboBox()
-        self.device_combobox.addItems(self.devices)
-        self.device_combobox.setCurrentText("auto")
-        whisper_layout.addWidget(self.device_combobox, 1, 1)
-
-        whisper_layout.addWidget(QLabel("Selected Compute Type:"), 2, 0)
-        self.compute_type_combobox = QComboBox()
-        self.compute_type_combobox.addItems(self.compute_types)
-        self.compute_type_combobox.setCurrentText("default")
-        whisper_layout.addWidget(self.compute_type_combobox, 2, 1)
-
-        advanced_layout.addLayout(whisper_layout)
+        advanced_layout.addLayout(self._create_whisper_model_select())
 
         # File selection
         basic_layout.addLayout(self._create_file_select())
         advanced_layout.addLayout(self._create_file_select())
 
         # Output Options
-        self.model_section_label = QLabel("Output Options")
-        advanced_layout.addWidget(self.model_section_label)
-        target_file_layout = QHBoxLayout()
-        self.chosen_target_file_label = QLabel("Selected target file:")
-        target_file_layout.addWidget(self.chosen_target_file_label)
-        self.selected_target_file_label = QLabel("No target file selected.")
-        target_file_layout.addWidget(self.selected_target_file_label)
-        self.target_file_select_button = QPushButton("Select File")
-        self.target_file_select_button.clicked.connect(self.get_save_path)
-        target_file_layout.addWidget(self.target_file_select_button)
-        advanced_layout.addLayout(target_file_layout)
+        model_section_label = QLabel("Output Options")
+        basic_layout.addWidget(model_section_label)
+        advanced_layout.addWidget(model_section_label)
+
+        basic_layout.addLayout(self._create_output_select())
+        advanced_layout.addLayout(self._create_output_select())
 
         # Fetch Snippets
-        self.fetch_snippets_button = QPushButton("Fetch Snippets")
-        self.fetch_snippets_button.clicked.connect(self.transcribe_and_analyse)
-        advanced_layout.addWidget(self.fetch_snippets_button)
+        basic_layout.addWidget(self._create_fetch_snippets_button())
+        advanced_layout.addWidget(self._create_fetch_snippets_button())
 
         # Output Display
-        self.model_section_label = QLabel("Output")
-        advanced_layout.addWidget(self.model_section_label)
-        self.output_text_edit = QPlainTextEdit()
-        self.output_text_edit.setReadOnly(True)
-        self.output_text_edit.setPlainText("Fetch snippet to get a result.")
-        advanced_layout.addWidget(self.output_text_edit)
+        model_section_label = QLabel("Output")
+        basic_layout.addWidget(model_section_label)
+        advanced_layout.addWidget(model_section_label)
+        basic_layout.addWidget(self._create_output_display())
+        advanced_layout.addWidget(self._create_output_display())
 
         # Transcript Display
         self.model_section_label = QLabel("Transcript")
         advanced_layout.addWidget(self.model_section_label)
-        self.transcript_text_edit = QPlainTextEdit()
-        self.transcript_text_edit.setReadOnly(True)
-        self.transcript_text_edit.setPlainText("Fetch snippet to get a transcript.")
-        advanced_layout.addWidget(self.transcript_text_edit)
+        advanced_layout.addWidget(self._create_transcript_display())
 
         # Add tabs
         basic_tab.setLayout(basic_layout)
@@ -118,6 +86,29 @@ class SnippetFinder(QWidget):
         main_layout = QVBoxLayout()
         main_layout.addWidget(tabs)
         self.setLayout(main_layout)
+
+    def _create_whisper_model_select(self) -> QGridLayout:
+        whisper_layout = QGridLayout()
+        model_section_label = QLabel("Whisper Options")
+        whisper_layout.addWidget(model_section_label, 0, 0)
+        whisper_layout.addWidget(QLabel("Selected model:"), 1, 0)
+        model_combobox = QComboBox()
+        model_combobox.addItems(self.available_models)
+        model_combobox.setCurrentText("base")
+        whisper_layout.addWidget(model_combobox, 1, 1)
+
+        whisper_layout.addWidget(QLabel("Selected device:"), 2, 0)
+        device_combobox = QComboBox()
+        device_combobox.addItems(self.devices)
+        device_combobox.setCurrentText("auto")
+        whisper_layout.addWidget(device_combobox, 2, 1)
+
+        whisper_layout.addWidget(QLabel("Selected Compute Type:"), 3, 0)
+        compute_type_combobox = QComboBox()
+        compute_type_combobox.addItems(self.compute_types)
+        compute_type_combobox.setCurrentText("default")
+        whisper_layout.addWidget(compute_type_combobox, 3, 1)
+        return whisper_layout
 
     def _create_file_select(self) -> QHBoxLayout:
         file_layout = QHBoxLayout()
@@ -129,6 +120,34 @@ class SnippetFinder(QWidget):
         file_select_button.clicked.connect(self.select_file)
         file_layout.addWidget(file_select_button)
         return file_layout
+
+    def _create_output_select(self) -> QHBoxLayout:
+        target_file_layout = QHBoxLayout()
+        chosen_target_file_label = QLabel("Selected target file:")
+        target_file_layout.addWidget(chosen_target_file_label)
+        selected_target_file_label = QLabel("No target file selected.")
+        target_file_layout.addWidget(selected_target_file_label)
+        target_file_select_button = QPushButton("Select File")
+        target_file_select_button.clicked.connect(self.get_save_path)
+        target_file_layout.addWidget(target_file_select_button)
+        return target_file_layout
+
+    def _create_fetch_snippets_button(self) -> QPushButton:
+        fetch_snippets_button = QPushButton("Fetch Snippets")
+        fetch_snippets_button.clicked.connect(self.transcribe_and_analyse)
+        return fetch_snippets_button
+
+    def _create_output_display(self) -> QPlainTextEdit:
+        output_text_edit = QPlainTextEdit()
+        output_text_edit.setReadOnly(True)
+        output_text_edit.setPlainText("Fetch snippet to get a result.")
+        return output_text_edit
+
+    def _create_transcript_display(self) -> QPlainTextEdit:
+        transcript_text_edit = QPlainTextEdit()
+        transcript_text_edit.setReadOnly(True)
+        transcript_text_edit.setPlainText("Fetch snippet to get a transcript.")
+        return transcript_text_edit
 
     def select_file(self):
         logger.debug("select_file called.")
