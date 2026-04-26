@@ -51,8 +51,10 @@ class SnippetFinder(QWidget):
         advanced_layout.addLayout(self._create_whisper_model_select())
 
         # File selection
-        basic_layout.addLayout(self._create_file_select())
-        advanced_layout.addLayout(self._create_file_select())
+        self.selected_file_label = self._create_file_select_label()
+        basic_layout.addLayout(self._create_file_select(self.selected_file_label))
+        advanced_layout.addLayout(self._create_file_select(self.selected_file_label))
+        # TODO: can we share the file state instead of the label?
 
         # Output Options
         model_section_label = QLabel("Output Options")
@@ -110,14 +112,18 @@ class SnippetFinder(QWidget):
         whisper_layout.addWidget(compute_type_combobox, 3, 1)
         return whisper_layout
 
-    def _create_file_select(self) -> QHBoxLayout:
+    def _create_file_select_label(self) -> QLabel:
+        return QLabel("No file selected.")
+
+    def _create_file_select(self, selected_file_label: QLabel) -> QHBoxLayout:
         file_layout = QHBoxLayout()
         chosen_file_label = QLabel("Selected audio file:")
         file_layout.addWidget(chosen_file_label)
-        selected_file_label = QLabel("No file selected.")
         file_layout.addWidget(selected_file_label)
         file_select_button = QPushButton("Select File")
-        file_select_button.clicked.connect(self.select_file)
+        file_select_button.clicked.connect(
+            lambda: self.select_file(selected_file_label)
+        )
         file_layout.addWidget(file_select_button)
         return file_layout
 
@@ -149,7 +155,7 @@ class SnippetFinder(QWidget):
         transcript_text_edit.setPlainText("Fetch snippet to get a transcript.")
         return transcript_text_edit
 
-    def select_file(self):
+    def select_file(self, selected_file_label: QLabel):
         logger.debug("select_file called.")
         file_dialog = QFileDialog(self)
         file_path, _ = file_dialog.getOpenFileName(
@@ -158,7 +164,7 @@ class SnippetFinder(QWidget):
         logger.debug(f"File selected. file_path={file_path}.")
         if file_path:
             self.file_path = file_path
-            self.selected_file_label.setText(os.path.basename(file_path))
+            selected_file_label.setText(os.path.basename(file_path))
         logger.debug("select_file complete.")
 
     def get_save_path(self):
