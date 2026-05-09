@@ -25,7 +25,7 @@ jobs:
           - os: macos-latest
             artifact: snippet-finder-macos
             path: dist/snippet-finder-macos.zip
-            pyinstaller_args: --name snippet-finder --onedir --windowed --collect-all PyQt6
+            pyinstaller_args: --name snippet-finder --onedir --windowed
 
           - os: ubuntu-latest
             artifact: snippet-finder-linux
