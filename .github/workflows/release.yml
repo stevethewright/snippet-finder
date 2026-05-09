@@ -65,6 +65,10 @@ jobs:
       - name: Build with PyInstaller
         run: uv run pyinstaller ${{ matrix.pyinstaller_args }}
 
+      - name: Chmod Linux
+        if: runner.os == 'Linux'
+        run: chmod +x dist/snippet-finder
+        
       - name: Zip MacOS app
         if: runner.os == 'macOS'
         run: cd ${{ github.workspace }}/dist && zip -r snippet-finder-macos.zip snippet-finder.app
