@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*'
+    branches:
+      - bug/v0-1-0-issues
 
   workflow_dispatch:
 
@@ -18,17 +20,17 @@ jobs:
           - os: windows-latest
             artifact: snippet-finder-win
             path: dist/snippet-finder.exe
-            pyinstaller_args: --onefile --windowed src/snippet_finder/__main__.py --name snippet-finder
+            pyinstaller_args: --name snippet-finder --onefile --windowed
 
           - os: macos-latest
             artifact: snippet-finder-macos
             path: dist/snippet-finder-macos.zip
-            pyinstaller_args: --onedir --windowed src/snippet_finder/__main__.py --name snippet-finder
+            pyinstaller_args: --name snippet-finder --onedir --windowed --collect-all PyQt6
 
           - os: ubuntu-latest
             artifact: snippet-finder-linux
             path: dist/snippet-finder
-            pyinstaller_args: --onefile --windowed src/snippet_finder/__main__.py --name snippet-finder
+            pyinstaller_args: --name snippet-finder --onefile --windowed
 
     runs-on: ${{ matrix.os }}
 
@@ -63,12 +65,12 @@ jobs:
             libgl1
 
       - name: Build with PyInstaller
-        run: uv run pyinstaller ${{ matrix.pyinstaller_args }}
+        run: uv run pyinstaller src/snippet_finder/__main__.py ${{ matrix.pyinstaller_args }}
 
       - name: Chmod Linux
         if: runner.os == 'Linux'
         run: chmod +x dist/snippet-finder
-        
+
       - name: Zip MacOS app
         if: runner.os == 'macOS'
         run: cd ${{ github.workspace }}/dist && zip -r snippet-finder-macos.zip snippet-finder.app
