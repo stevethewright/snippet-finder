@@ -71,10 +71,16 @@ jobs:
         if: runner.os == 'Linux'
         run: chmod +x dist/snippet-finder
 
-      - name: Sign and Zip MacOS app
+      - name: Add qt.conf, sign and zip MacOS app
         if: runner.os == 'macOS'
         run: |
           cd ${{ github.workspace }}/dist
+          cat > "snippet-finder.app/Contents/MacOS/qt.conf" << 'EOF'
+          [Paths]
+          Prefix = ../Frameworks
+          Libraries = ../Frameworks
+          Plugins = ../Frameworks/PyQt6/Qt6/plugins
+          EOF
           codesign --force --deep --sign - "snippet-finder.app"
           zip -r snippet-finder-macos.zip snippet-finder.app
 
