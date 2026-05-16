@@ -71,9 +71,12 @@ jobs:
         if: runner.os == 'Linux'
         run: chmod +x dist/snippet-finder
 
-      - name: Zip MacOS app
+      - name: Sign and Zip MacOS app
         if: runner.os == 'macOS'
-        run: cd ${{ github.workspace }}/dist && zip -r snippet-finder-macos.zip snippet-finder.app
+        run: |
+          cd ${{ github.workspace }}/dist
+          codesign --force --deep --sign - "snippet-finder.app"
+          zip -r snippet-finder-macos.zip snippet-finder.app
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
