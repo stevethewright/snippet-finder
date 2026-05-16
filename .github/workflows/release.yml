@@ -71,18 +71,9 @@ jobs:
         if: runner.os == 'Linux'
         run: chmod +x dist/snippet-finder
 
-      - name: Add qt.conf, sign and zip MacOS app
+      - name: Zip MacOS app
         if: runner.os == 'macOS'
-        run: |
-          cd ${{ github.workspace }}/dist
-          cat > "snippet-finder.app/Contents/MacOS/qt.conf" << 'EOF'
-          [Paths]
-          Prefix = ../Frameworks
-          Libraries = ../Frameworks
-          Plugins = ../Frameworks/PyQt6/Qt6/plugins
-          EOF
-          codesign --force --deep --sign - "snippet-finder.app"
-          zip -r snippet-finder-macos.zip snippet-finder.app
+        run: cd ${{ github.workspace }}/dist && zip -r snippet-finder-macos.zip snippet-finder.app
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

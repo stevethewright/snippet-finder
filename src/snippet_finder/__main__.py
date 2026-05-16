@@ -3,6 +3,19 @@ from logging.handlers import RotatingFileHandler
 import os
 import sys
 
+if sys.platform == "darwin" and getattr(sys, "frozen", False):
+    # When frozen with PyInstaller, help Qt find itself
+    # without relying on CFBundleGetMainBundle()
+    bundle_dir = os.path.dirname(os.path.dirname(sys.executable))
+    frameworks = os.path.join(bundle_dir, "Frameworks")
+
+    os.environ["QT_PLUGIN_PATH"] = os.path.join(frameworks, "PyQt6", "Qt6", "plugins")
+    os.environ["QT_QPA_PLATFORM_PLUGIN_PATH"] = os.path.join(
+        frameworks, "PyQt6", "Qt6", "plugins", "platforms"
+    )
+    os.environ["DYLD_FRAMEWORK_PATH"] = frameworks
+    os.environ["DYLD_LIBRARY_PATH"] = frameworks
+
 from dotenv import load_dotenv
 from PyQt6.QtWidgets import QApplication
 from snippet_finder.frontend import SnippetFinder
